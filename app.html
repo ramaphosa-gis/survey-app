@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Homeland Surveyors</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* --- BASIC DASHBOARD STYLING --- */
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      background: #f4f6f9;
+      color: #222;
+    }
+
+    header {
+      background: #0b5394;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      letter-spacing: 1px;
+    }
+
+    .logout-btn {
+      background: #d9534f;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .logout-btn:hover {
+      background: #c9302c;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      padding: 0.8rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      color: #0b5394;
+      transition: 0.2s;
+    }
+
+    nav button.active {
+      border-bottom: 3px solid #0b5394;
+    }
+
+    nav button:hover {
+      color: #083b6b;
+    }
+
+    /* --- Search input --- */
+    #parcelSearchInput {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      width: 200px;
+    }
+
+    #parcelSearchBtn {
+      padding: 0.4rem 0.8rem;
+      border: none;
+      background: #0b5394;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    #parcelSearchBtn:hover {
+      background: #083b6b;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 2rem;
+      padding: 0 1rem;
+    }
+
+    section {
+      display: none;
+      width: 100%;
+      max-width: 900px;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    section.active {
+      display: block;
+    }
+
+    .add-btn {
+      background: #0b5394;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.4rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    .add-btn:hover {
+      background: #083b6b;
+    }
+
+    ul.parcel-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+
+    ul.parcel-list li {
+      background: #f9fafc;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      text-align: center;
+      color: #0b5394;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="file"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .mini-btn {
+      background: #e7eaf3;
+      color: #0b5394;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      margin-top: 0.8rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .mini-btn:hover {
+      background: #dce3f1;
+    }
+
+    .submit-btn, .close-btn {
+      margin-top: 1rem;
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .submit-btn {
+      background: #0b5394;
+      color: white;
+    }
+
+    .close-btn {
+      background: #ccc;
+      color: black;
+      margin-left: 0.5rem;
+    }
+
+    .owner-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 40px;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      align-items: center;
+    }
+
+    .owner-row button {
+      background: #d9534f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 0.3rem;
+    }
+
+    .owner-row button:hover {
+      background: #b52b27;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Homeland Surveyors</h1>
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+  </header>
+
+  <nav>
+    <button id="nav-parcels" class="active">Parcels</button>
+    <button id="nav-calendar">Calendar</button>
+    <button id="nav-notifications">Notifications</button>
+    <button id="nav-profile">Profile</button>
+
+    <input type="text" id="parcelSearchInput" placeholder="Search parcels...">
+    <button id="parcelSearchBtn">Search</button>
+  </nav>
+
+  <main>
+    <section id="section-parcels" class="active">
+      <button id="addParcelBtn" class="add-btn">+ Add Parcel</button>
+      <h3>Parcels</h3>
+      <ul id="parcelList" class="parcel-list"></ul>
+    </section>
+
+    <section id="section-calendar">
+      <h3>Calendar</h3>
+      <p>Calendar feature coming soon.</p>
+    </section>
+
+    <section id="section-notifications">
+      <h3>Notifications</h3>
+      <p>No notifications yet.</p>
+    </section>
+
+    <section id="section-profile">
+      <h3>User Profile</h3>
+      <p>Profile details and settings will go here.</p>
+    </section>
+  </main>
+
+  <div id="parcelModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Add Parcel</h3>
+      <form id="parcelForm">
+        <label>Parcel Number</label>
+        <input type="text" id="parcelNumber" required>
+
+        <label>Owners</label>
+        <div id="ownersList">
+          <div class="owner-row">
+            <input type="text" placeholder="Full Name" class="ownerName" required>
+            <input type="text" placeholder="ID Number" class="ownerID" required>
+            <input type="text" placeholder="KRA PIN" class="ownerKRA" required>
+            <button type="button" class="deleteOwnerBtn">🗑</button>
+          </div>
+        </div>
+        <button type="button" id="addOwnerBtn" class="mini-btn">+ Add Owner</button>
+
+        <label>Survey Fees</label>
+        <input type="number" id="surveyFees" placeholder="Amount Paid">
+        <input type="number" id="surveyPending" placeholder="Pending Amount">
+
+        <label>Board Fees</label>
+        <input type="number" id="boardFees" placeholder="Amount Paid">
+        <input type="number" id="boardPending" placeholder="Pending Amount">
+
+        <label>Title Deed Fees</label>
+        <input type="number" id="titleFees" placeholder="Amount Paid">
+        <input type="number" id="titlePending" placeholder="Pending Amount">
+
+        <label>Date of Survey</label>
+        <input type="date" id="surveyDate">
+
+        <label>Upload Parcel Documents & Images</label>
+        <input type="file" id="parcelUploads" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.dwg" multiple>
+        <p style="font-size: 0.9rem; color: gray;">
+          You can upload multiple files like Mutation Form, Sale Agreement, Survey Sketch,
+          Land Map Extract, ID copies, Beacon Certificate, etc.
+        </p>
+
+        <div style="margin-top: 1.5rem; text-align:center;">
+          <button type="submit" class="submit-btn">Finish</button>
+          <button type="button" id="closeModalBtn" class="close-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parcel Details - Homeland Surveyors</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: url("./assets/survey-bg.jpg") center/cover no-repeat;
+      backdrop-filter: brightness(0.7);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: none;
+      margin-top: 0.3rem;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 0.7rem 1.2rem;
+      background: #00a86b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #009160;
+    }
+
+    .back-btn {
+      background: #555;
+      margin-right: 1rem;
+    }
+
+    .owner-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .owner-table th, .owner-table td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #999;
+    }
+
+    .action-btns {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Parcel Details</h2>
+
+    <form id="parcelDetailsForm">
+      <label>Parcel Number</label>
+      <input type="text" id="parcelNumber" readonly />
+
+      <label>Survey Date</label>
+      <input type="date" id="surveyDate" />
+
+      <label>Owners</label>
+      <table class="owner-table" id="ownersTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>ID No.</th>
+            <th>KRA PIN</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <label>Survey Fees Paid</label>
+      <input type="text" id="surveyFees" />
+
+      <label>Board Fees Paid</label>
+      <input type="text" id="boardFees" />
+
+      <label>Title Fees Paid</label>
+      <input type="text" id="titleFees" />
+
+      <div class="action-btns">
+        <button type="button" class="back-btn" id="backBtn">← Back</button>
+        <button type="submit">💾 Save Changes</button>
+      </div>
+    </form>
+  </div>
+
+  <script type="module" src="parcel.js"></script>
+</body>
+</html>
