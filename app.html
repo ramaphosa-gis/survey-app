@@ -150,6 +150,36 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      color: #222;
+      font-weight: 500;
+    }
+
+    ul.parcel-list li span {
+      color: #0b5394;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    ul.parcel-list li button {
+      background: #0b5394;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    ul.parcel-list li button:hover {
+      background: #083b6b;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+      font-style: italic;
     }
 
     .modal {
@@ -189,6 +219,7 @@
       display: block;
       margin-top: 1rem;
       font-weight: 600;
+      color: #333;
     }
 
     input[type="text"],
@@ -203,39 +234,33 @@
       font-size: 0.95rem;
     }
 
-    .mini-btn {
-      background: #e7eaf3;
-      color: #0b5394;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 0.4rem 0.8rem;
-      margin-top: 0.8rem;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    .mini-btn:hover {
-      background: #dce3f1;
-    }
-
-    .submit-btn, .close-btn {
+    #addParcelForm {
       margin-top: 1rem;
-      padding: 0.6rem 1rem;
-      border: none;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .form-actions button {
+      padding: 0.6rem 1.2rem;
       border-radius: 6px;
+      border: none;
       cursor: pointer;
       font-weight: 600;
     }
 
-    .submit-btn {
+    .form-actions .save-btn {
       background: #0b5394;
       color: white;
     }
 
-    .close-btn {
+    .form-actions .cancel-btn {
       background: #ccc;
-      color: black;
-      margin-left: 0.5rem;
+      color: #333;
     }
 
     .owner-row {
@@ -260,9 +285,7 @@
     }
   </style>
 </head>
-
 <body>
-
   <header>
     <h1>Homeland Surveyors</h1>
     <button id="logoutBtn" class="logout-btn">Logout</button>
@@ -301,7 +324,7 @@
     </section>
   </main>
 
-  <div id="parcelModal" class="modal hidden">
+  <div id="addParcelModal" class="modal hidden">
     <div class="modal-content">
       <h3>Add Parcel</h3>
       <form id="parcelForm">
@@ -341,14 +364,82 @@
           Land Map Extract, ID copies, Beacon Certificate, etc.
         </p>
 
-        <div style="margin-top: 1.5rem; text-align:center;">
-          <button type="submit" class="submit-btn">Finish</button>
-          <button type="button" id="closeModalBtn" class="close-btn">Cancel</button>
+        <div class="form-actions">
+          <button type="submit" class="submit-btn save-btn">Finish</button>
+          <button type="button" id="closeModalBtn" class="close-btn cancel-btn">Cancel</button>
         </div>
       </form>
     </div>
   </div>
 
-  <script type="module" src="js/app.js"></script>
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const SUPABASE_URL = "https://alhcuhdabdlapywwskjl.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFsaGN1aGRhYmRsYXB5d3dza2psIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1ODkyMDUsImV4cCI6MjA3NjE2NTIwNX0.iOBcMvY15vuZqNQOUjjVAsYoVj2YzbA3GRdr6T6p86E";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const parcelList = document.getElementById("parcelList");
+    const parcelSearchInput = document.getElementById("parcelSearchInput");
+
+    async function fetchParcels(searchTerm = "") {
+      let query = supabase.from("parcels").select("*").order("created_at", { ascending: false });
+
+      if (searchTerm && searchTerm.trim() !== "") {
+        query = query.ilike("parcel_number", `%${searchTerm}%`);
+      }
+
+      const { data: parcels, error } = await query;
+
+      if (error) {
+        console.error("Error fetching parcels:", error);
+        parcelList.innerHTML = '<li class="no-results">Error loading parcels. Please try again.</li>';
+        return;
+      }
+
+      if (parcels.length === 0) {
+        if (searchTerm && searchTerm.trim() !== "") {
+          parcelList.innerHTML = `<li class="no-results">No parcels found matching "${searchTerm}".</li>`;
+        } else {
+          parcelList.innerHTML = '<li class="no-results">No parcels available yet. Click "Add Parcel" to get started.</li>';
+        }
+        return;
+      }
+
+      parcelList.innerHTML = parcels
+        .map(
+          (p) => `
+            <li data-id="${p.id}">
+              <span>${p.parcel_number}</span>
+              <button onclick="location.href='parcel-view.html?id=${p.id}'">View</button>
+            </li>`
+        )
+        .join("");
+    }
+
+    parcelSearchInput.addEventListener("input", (e) => {
+      const searchValue = e.target.value.trim();
+      fetchParcels(searchValue);
+    });
+
+    // Initial load
+    fetchParcels();
+
+    // --- Modal Logic ---
+    const addBtn = document.querySelector(".add-btn");
+    const modal = document.getElementById("addParcelModal");
+    const cancelBtn = modal.querySelector(".cancel-btn");
+
+    addBtn.addEventListener("click", () => {
+      modal.classList.remove("hidden");
+    });
+
+    cancelBtn.addEventListener("click", () => {
+      modal.classList.add("hidden");
+    });
+
+    // You can add form submission logic here
+  </script>
 </body>
 </html>
